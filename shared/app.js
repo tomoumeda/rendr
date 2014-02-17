@@ -25,6 +25,7 @@ module.exports = Backbone.Model.extend({
    * @shared
    */
   constructor: function(attributes, options) {
+    attributes = attributes || {};
     this.options = options || {};
 
     var entryPath = this.options.entryPath || '';
@@ -41,6 +42,16 @@ module.exports = Backbone.Model.extend({
     if (this.options.req) {
       this.req = this.options.req;
     }
+
+    /**
+     * Initialize the `templateAdapter`, allowing application developers to use whichever
+     * templating system they want.
+     *
+     * We can't use `this.get('templateAdapter')` here because `Backbone.Model`'s
+     * constructor has not yet been called.
+     */
+    var templateAdapterModule = attributes.templateAdapter || this.defaults.templateAdapter;
+    this.templateAdapter = require(templateAdapterModule)({entryPath: entryPath});
 
     /**
      * Instantiate the `Fetcher`, which is used on client and server.
@@ -67,12 +78,6 @@ module.exports = Backbone.Model.extend({
       console.warn('`postInitialize` is deprecated, please use `initialize`');
       this.postInitialize();
     }
-
-    /**
-     * Initialize the `templateAdapter`, allowing application developers to use whichever
-     * templating system they want.
-     */
-    this.templateAdapter = require(this.get('templateAdapter'))({entryPath: entryPath});
   },
 
   /**
