@@ -1,12 +1,27 @@
-var should = require('chai').should(),
+var sinon = require('sinon'),
+    should = require('chai').should(),
     App = require('../../shared/app');
 
 describe('BaseApp', function() {
-  describe('initialization', function() {
-    it('does not throw errors', function() {
-      var MyApp = App.extend({});
+  describe('initialize', function() {
+    it('is called', function() {
+      var MyApp = App.extend({
+        initialize: sinon.spy()
+      });
 
-      new MyApp();
+      var app = new MyApp();
+
+      app.initialize.should.have.been.called;
+    });
+
+    it('calls `postInitialize` if present', function() {
+      var MyApp = App.extend({
+        postInitialize: sinon.spy()
+      });
+
+      var app = new MyApp();
+
+      app.postInitialize.should.have.been.called;
     });
 
     it('can access `this.templateAdapter` in `initialize`', function() {
