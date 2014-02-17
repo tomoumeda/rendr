@@ -14,8 +14,6 @@ if (!isServer) {
   Backbone.$ = window.$ || require('jquery');
 }
 
-function noop() {}
-
 module.exports = Backbone.Model.extend({
 
   defaults: {
@@ -26,7 +24,7 @@ module.exports = Backbone.Model.extend({
   /**
    * @shared
    */
-  initialize: function(attributes, options) {
+  constructor: function(attributes, options) {
     this.options = options || {};
 
     var entryPath = this.options.entryPath || '';
@@ -43,12 +41,6 @@ module.exports = Backbone.Model.extend({
     if (this.options.req) {
       this.req = this.options.req;
     }
-
-    /**
-     * Initialize the `templateAdapter`, allowing application developers to use whichever
-     * templating system they want.
-     */
-    this.templateAdapter = require(this.get('templateAdapter'))({entryPath: entryPath});
 
     /**
      * Instantiate the `Fetcher`, which is used on client and server.
@@ -69,14 +61,19 @@ module.exports = Backbone.Model.extend({
       });
     }
 
-    /**
-     * Call `postInitialize()`, to make it easy for an application to easily subclass and add custom
-     * behavior without having to call i.e. `BaseApp.prototype.initialize.apply(this, arguments)`.
-     */
-    this.postInitialize();
-  },
+    Backbone.Model.apply(this, arguments);
 
-  postInitialize: noop,
+    if (this.postInitialize) {
+      console.warn('`postInitialize` is deprecated, please use `initialize`');
+      this.postInitialize();
+    }
+
+    /**
+     * Initialize the `templateAdapter`, allowing application developers to use whichever
+     * templating system they want.
+     */
+    this.templateAdapter = require(this.get('templateAdapter'))({entryPath: entryPath});
+  },
 
   /**
    * @shared
